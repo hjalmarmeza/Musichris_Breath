@@ -1,0 +1,17 @@
+{
+  "name": "MusiChris Breath",
+  "short_name": "Breath",
+  "description": "El Soplo de Vida - Mensajes Ministeriales",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a1128",
+  "theme_color": "#d4af37",
+  "icons": [
+    {
+      "src": "assets/images/logo_breath.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
