@@ -1,7 +1,16 @@
 // 💎 MusiChris Breath - UI Engine v1.0
 document.addEventListener('DOMContentLoaded', () => {
-    const profiles = document.querySelectorAll('#profile-selector .selector-item');
-    const tones = document.querySelectorAll('#tone-selector .selector-item');
+    const splashScreen = document.getElementById('splash-screen');
+    if (splashScreen) {
+        splashScreen.addEventListener('click', () => {
+            splashScreen.style.opacity = '0';
+            setTimeout(() => splashScreen.style.display = 'none', 800);
+        });
+    }
+
+    const profiles = document.querySelectorAll('.profile-item');
+    const tones = document.querySelectorAll('.tone-item');
+    const channels = document.querySelectorAll('.channel-item');
     const forgeBtn = document.getElementById('forge-btn');
 
     let selectedProfile = null;
@@ -41,11 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`🎨 Tono seleccionado: ${selectedTone}`);
     });
 
-    // Nuevo: Manejador de Canales
+    // 📡 Manejador de Canales (Corregido)
     const channels = document.querySelectorAll('.channel-item');
     handleSelection(channels, (data) => {
         selectedChannel = data.channel;
-        console.log(`📡 Canal de entrega: ${selectedChannel}`);
+        console.log(`📡 Canal seleccionado: ${selectedChannel}`);
     });
 
     forgeBtn.addEventListener('click', async () => {

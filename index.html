@@ -12,6 +12,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
+    <!-- 💎 Welcome Splash Screen -->
+    <div id="splash-screen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #1a2a44 0%, #0a1128 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: opacity 0.8s ease;">
+        <img src="assets/Logo_Breath.png" alt="MusiChris Breath" class="logo" style="width: 180px; height: 180px; animation: breathe 3s infinite ease-in-out;">
+        <h1 style="margin-top: 20px;">MusiChris Breath</h1>
+        <p style="color: var(--accent-gold); margin-top: 10px; font-weight: 500; letter-spacing: 2px;">TOCA PARA ENTRAR</p>
+    </div>
+
     <div class="container">
         <header>
             <img src="assets/images/logo_breath.png" alt="MusiChris Breath" class="logo">
@@ -23,34 +30,34 @@
             <!-- 👤 Step 1: Who -->
             <h2 class="section-title">1. ¿Para quién es el mensaje?</h2>
             <div class="grid-selector" id="profile-selector">
-                <div class="selector-item" data-profile="paternal">Padres / Abuelos</div>
-                <div class="selector-item" data-profile="legado">Hijos / Nietos</div>
-                <div class="selector-item" data-profile="autoridad">Jefes / Líderes</div>
-                <div class="selector-item" data-profile="guerra">Guerra / Fortaleza</div>
-                <div class="selector-item" data-profile="sanidad">Paz / Sanidad</div>
-                <div class="selector-item" data-profile="amistad">Amigos</div>
-                <div class="selector-item" data-profile="mision">Misión / Entrega</div>
-                <div class="selector-item" data-profile="sabiduria">Sabiduría / Mentor</div>
+                <div class="selector-item profile-item" data-profile="paternal">Padres / Abuelos</div>
+                <div class="selector-item profile-item" data-profile="legado">Hijos / Nietos</div>
+                <div class="selector-item profile-item" data-profile="autoridad">Jefes / Líderes</div>
+                <div class="selector-item profile-item" data-profile="guerra">Guerra / Fortaleza</div>
+                <div class="selector-item profile-item" data-profile="sanidad">Paz / Sanidad</div>
+                <div class="selector-item profile-item" data-profile="amistad">Amigos</div>
+                <div class="selector-item profile-item" data-profile="mision">Misión / Entrega</div>
+                <div class="selector-item profile-item" data-profile="sabiduria">Sabiduría / Mentor</div>
             </div>
 
             <!-- 🎨 Step 2: Tone -->
             <h2 class="section-title">2. Elige el Tono Ministerial</h2>
             <div class="grid-selector" id="tone-selector">
-                <div class="selector-item" data-tone="inspirador">Inspirador</div>
-                <div class="selector-item" data-tone="consuelo">Consuelo</div>
-                <div class="selector-item" data-tone="celebracion">Celebración</div>
-                <div class="selector-item" data-tone="firmeza">Firmeza</div>
-                <div class="selector-item" data-tone="gratitud">Gratitud</div>
-                <div class="selector-item" data-tone="profetico">Profético</div>
+                <div class="selector-item tone-item" data-tone="inspirador">Inspirador</div>
+                <div class="selector-item tone-item" data-tone="consuelo">Consuelo</div>
+                <div class="selector-item tone-item" data-tone="celebracion">Celebración</div>
+                <div class="selector-item tone-item" data-tone="firmeza">Firmeza</div>
+                <div class="selector-item tone-item" data-tone="gratitud">Gratitud</div>
+                <div class="selector-item tone-item" data-tone="profetico">Profético</div>
             </div>
 
             <!-- 📝 Step 3: Context -->
             <h2 class="section-title">3. Detalles Adicionales (Opcional)</h2>
             <textarea id="context-input" placeholder="Ej: Es su cumpleaños 50, o está pasando por un examen difícil..."></textarea>
 
-            <!-- 📡 Step 4: Dispatch Channel -->
-            <h2 class="section-title">4. Canal de Entrega</h2>
-            <div class="grid-selector" id="channel-selector" style="grid-template-columns: repeat(3, 1fr);">
+            <!-- 📡 Step 4: Canal de Entrega -->
+            <h2 class="section-title" style="margin-top: 15px;">4. Canal de Entrega</h2>
+            <div class="grid-selector" id="channel-selector" style="grid-template-columns: repeat(2, 1fr); gap: 10px;">
                 <div class="selector-item channel-item active" data-channel="youtube">🎬 YouTube</div>
                 <div class="selector-item channel-item" data-channel="whatsapp">📱 WhatsApp</div>
                 <div class="selector-item channel-item" data-channel="telegram">✈️ Telegram</div>
