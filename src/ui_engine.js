@@ -50,8 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`🎨 Tono seleccionado: ${selectedTone}`);
     });
 
-    // 📡 Manejador de Canales (Corregido)
-    const channels = document.querySelectorAll('.channel-item');
+    // 📡 Manejador de Canales (Usa la constante declarada arriba)
     handleSelection(channels, (data) => {
         selectedChannel = data.channel;
         console.log(`📡 Canal seleccionado: ${selectedChannel}`);
