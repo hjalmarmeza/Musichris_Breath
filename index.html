@@ -48,6 +48,16 @@
             <h2 class="section-title">3. Detalles Adicionales (Opcional)</h2>
             <textarea id="context-input" placeholder="Ej: Es su cumpleaños 50, o está pasando por un examen difícil..."></textarea>
 
+            <!-- 📡 Step 4: Dispatch Channel -->
+            <h2 class="section-title">4. Canal de Entrega</h2>
+            <div class="grid-selector" id="channel-selector" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="selector-item channel-item active" data-channel="youtube">🎬 YouTube</div>
+                <div class="selector-item channel-item" data-channel="whatsapp">📱 WhatsApp</div>
+                <div class="selector-item channel-item" data-channel="telegram">✈️ Telegram</div>
+                <div class="selector-item channel-item" data-channel="sms">💬 SMS</div>
+                <div class="selector-item channel-item" data-channel="mail">📧 Correo</div>
+            </div>
+
             <!-- 🔥 Action -->
             <button class="btn-forge" id="forge-btn">FORJAR ALIENTO</button>
         </main>

@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let selectedProfile = null;
     let selectedTone = null;
+    let selectedChannel = 'youtube'; // Canal por defecto
 
     // 🎼 Matriz Maestra - Audio y Video
     const matrix = {
@@ -40,6 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`🎨 Tono seleccionado: ${selectedTone}`);
     });
 
+    // Nuevo: Manejador de Canales
+    const channels = document.querySelectorAll('.channel-item');
+    handleSelection(channels, (data) => {
+        selectedChannel = data.channel;
+        console.log(`📡 Canal de entrega: ${selectedChannel}`);
+    });
+
     forgeBtn.addEventListener('click', async () => {
         if (!selectedProfile || !selectedTone) {
             alert('Por favor, selecciona un destinatario y un tono ministerial.');
@@ -64,44 +72,52 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const payload = {
-            event_type: 'forge_aliento',
-            client_payload: {
-                profile: selectedProfile,
-                tone: selectedTone,
-                context: context,
-                audio: matrix[selectedProfile].audio,
-                video: matrix[selectedProfile].video,
-                message: "Generando mensaje ministerial..." // Aquí se inyectará el resultado de AI_Engine
-            }
-        };
-
-        console.log('🚀 Despachando Forja Real a GitHub:', payload);
+        const message = "¡Dios te bendiga! Quería compartir contigo este mensaje de aliento..."; // Aquí irá la IA real
         
-        try {
-            const response = await fetch(`https://api.github.com/repos/hjalmarmeza/Musichris_Breath/dispatches`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `token ${pat}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
+        if (selectedChannel === 'youtube') {
+            // Lógica de Forja de Video en Nube
+            try {
+                const response = await fetch(`https://api.github.com/repos/hjalmarmeza/Musichris_Breath/dispatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${pat}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        event_type: 'forge_aliento',
+                        client_payload: {
+                            profile: selectedProfile,
+                            tone: selectedTone,
+                            context: context,
+                            audio: matrix[selectedProfile].audio,
+                            video: matrix[selectedProfile].video,
+                            message: message
+                        }
+                    })
+                });
 
-            if (response.ok) {
-                alert(`¡Aliento Forjado con Éxito! 🌬️💎\n\nGitHub está procesando el video para YouTube.\nPerfil: ${selectedProfile}\nCanción: ${matrix[selectedProfile].audio}`);
-            } else {
-                const error = await response.json();
-                throw new Error(error.message || 'Error en el despacho');
+                if (response.ok) {
+                    alert(`¡Aliento Forjado! 🌬️💎\n\nYouTube está procesando tu video.\nCanción: ${matrix[selectedProfile].audio}`);
+                } else {
+                    throw new Error('Error al conectar con GitHub');
+                }
+            } catch (err) {
+                alert(`Error: ${err.message}`);
             }
-        } catch (err) {
-            console.error('❌ Error en la Forja:', err);
-            alert(`Error al conectar con GitHub: ${err.message}`);
-            if (err.message.includes('Unauthorized')) localStorage.removeItem('musichris_pat');
-        } finally {
-            forgeBtn.innerText = 'FORJAR ALIENTO';
-            forgeBtn.disabled = false;
+        } else {
+            // Lógica de Compartir Directo (WhatsApp, etc)
+            let shareUrl = "";
+            const fullMessage = encodeURIComponent(`${message}\n\nEscucha esta canción para ti: ${matrix[selectedProfile].audio}`);
+
+            switch(selectedChannel) {
+                case 'whatsapp': shareUrl = `https://wa.me/?text=${fullMessage}`; break;
+                case 'telegram': shareUrl = `https://t.me/share/url?url=&text=${fullMessage}`; break;
+                case 'sms': shareUrl = `sms:?body=${fullMessage}`; break;
+                case 'mail': shareUrl = `mailto:?subject=Un mensaje de aliento para ti&body=${fullMessage}`; break;
+            }
+
+            window.open(shareUrl, '_blank');
         }
     });
 });
