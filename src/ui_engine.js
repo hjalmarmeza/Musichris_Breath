@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`🎨 Tono seleccionado: ${selectedTone}`);
     });
 
-    forgeBtn.addEventListener('click', () => {
+    forgeBtn.addEventListener('click', async () => {
         if (!selectedProfile || !selectedTone) {
             alert('Por favor, selecciona un destinatario y un tono ministerial.');
             return;
@@ -51,22 +51,57 @@ document.addEventListener('DOMContentLoaded', () => {
         forgeBtn.innerText = 'FORJANDO ALIENTO...';
         forgeBtn.disabled = true;
 
+        // 🔐 Gestión de Autenticación
+        let pat = localStorage.getItem('musichris_pat');
+        if (!pat) {
+            pat = prompt('⚠️ Por favor, ingresa tu GitHub Personal Access Token (PAT) para activar la forja ministerial:');
+            if (pat) localStorage.setItem('musichris_pat', pat);
+            else {
+                alert('Se requiere el Token para forjar el aliento.');
+                forgeBtn.innerText = 'FORJAR ALIENTO';
+                forgeBtn.disabled = false;
+                return;
+            }
+        }
+
         const payload = {
-            profile: selectedProfile,
-            tone: selectedTone,
-            context: context,
-            audio: matrix[selectedProfile].audio,
-            video: matrix[selectedProfile].video,
-            timestamp: new Date().toISOString()
+            event_type: 'forge_aliento',
+            client_payload: {
+                profile: selectedProfile,
+                tone: selectedTone,
+                context: context,
+                audio: matrix[selectedProfile].audio,
+                video: matrix[selectedProfile].video,
+                message: "Generando mensaje ministerial..." // Aquí se inyectará el resultado de AI_Engine
+            }
         };
 
-        console.log('🚀 Despachando Forja Multimodal:', payload);
+        console.log('🚀 Despachando Forja Real a GitHub:', payload);
         
-        // Aquí integraremos el dispatch real a GitHub Actions o la API local
-        setTimeout(() => {
-            alert(`¡Aliento Forjado! \n\nPerfil: ${selectedProfile}\nCanción: ${matrix[selectedProfile].audio}\n\nEl sistema está preparando el video y el mensaje para WhatsApp.`);
+        try {
+            const response = await fetch(`https://api.github.com/repos/hjalmarmeza/Musichris_Breath/dispatches`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `token ${pat}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                alert(`¡Aliento Forjado con Éxito! 🌬️💎\n\nGitHub está procesando el video para YouTube.\nPerfil: ${selectedProfile}\nCanción: ${matrix[selectedProfile].audio}`);
+            } else {
+                const error = await response.json();
+                throw new Error(error.message || 'Error en el despacho');
+            }
+        } catch (err) {
+            console.error('❌ Error en la Forja:', err);
+            alert(`Error al conectar con GitHub: ${err.message}`);
+            if (err.message.includes('Unauthorized')) localStorage.removeItem('musichris_pat');
+        } finally {
             forgeBtn.innerText = 'FORJAR ALIENTO';
             forgeBtn.disabled = false;
-        }, 2000);
+        }
     });
 });
