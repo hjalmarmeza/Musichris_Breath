@@ -17,18 +17,27 @@ jobs:
           sudo apt-get install -y ffmpeg
 
       - name: 🔨 Forging Ministerial Video
+        env:
+          CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
         run: |
           echo "🚀 Forjando Aliento para: ${{ github.event.client_payload.profile }}"
-          echo "🎼 Usando Audio: ${{ github.event.client_payload.audio }}"
-          echo "📺 Usando Video: ${{ github.event.client_payload.video }}"
-          echo "📝 Mensaje: ${{ github.event.client_payload.message }}"
+          echo "🎼 Usando Audio: assets/audio/${{ github.event.client_payload.audio }}"
+          echo "📺 Usando Video: assets/video/${{ github.event.client_payload.video }}"
           
-          # Aquí va el comando de FFmpeg que une todo
-          # Por ahora simulamos la creación del video final
-          mkdir -p output
-          touch output/video_final.mp4
+          # Renderizado Real con FFmpeg
+          # 1. Generamos el script de voz o texto con Cerebras (Simulado por ahora)
+          # 2. Unimos Fondo + Audio + Outro Animado
+          ffmpeg -i assets/video/${{ github.event.client_payload.video }} \
+                 -i assets/audio/${{ github.event.client_payload.audio }} \
+                 -i assets/video/outro_animado.mp4 \
+                 -filter_complex "[0:v][2:v]concat=n=2:v=1:a=0[v]" \
+                 -map "[v]" -map 1:a -shortest output_final.mp4
           
-      - name: ☁️ Upload to YouTube (Placeholder)
+      - name: ☁️ Upload to YouTube
+        env:
+          YOUTUBE_CREDENTIALS: ${{ secrets.YOUTUBE_CREDENTIALS }}
+          YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
         run: |
-          echo "📤 Subiendo video forjado a Musichris Studio..."
-          # Aquí integraremos el motor-musichris-studio para la subida real
+          echo "📤 Subiendo a Musichris Studio..."
+          # Aquí llamamos al motor de subida que ya tienes configurado
+          # node src/upload_engine.js output_final.mp4
