@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MusiChris Breath | El Soplo de Vida</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="icon" href="assets/images/logo_breath.png">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="assets/images/logo_breath.png" alt="MusiChris Breath" class="logo">
+            <h1>MusiChris Breath</h1>
+            <p style="opacity: 0.6; font-style: italic;">Palabras que dan vida</p>
+        </header>
+
+        <main>
+            <!-- 👤 Step 1: Who -->
+            <h2 class="section-title">1. ¿Para quién es el mensaje?</h2>
+            <div class="grid-selector" id="profile-selector">
+                <div class="selector-item" data-profile="paternal">Padres / Abuelos</div>
+                <div class="selector-item" data-profile="legado">Hijos / Nietos</div>
+                <div class="selector-item" data-profile="autoridad">Jefes / Líderes</div>
+                <div class="selector-item" data-profile="guerra">Guerra / Fortaleza</div>
+                <div class="selector-item" data-profile="sanidad">Paz / Sanidad</div>
+                <div class="selector-item" data-profile="amistad">Amigos</div>
+                <div class="selector-item" data-profile="mision">Misión / Entrega</div>
+                <div class="selector-item" data-profile="sabiduria">Sabiduría / Mentor</div>
+            </div>
+
+            <!-- 🎨 Step 2: Tone -->
+            <h2 class="section-title">2. Elige el Tono Ministerial</h2>
+            <div class="grid-selector" id="tone-selector">
+                <div class="selector-item" data-tone="inspirador">Inspirador</div>
+                <div class="selector-item" data-tone="consuelo">Consuelo</div>
+                <div class="selector-item" data-tone="celebracion">Celebración</div>
+                <div class="selector-item" data-tone="firmeza">Firmeza</div>
+                <div class="selector-item" data-tone="gratitud">Gratitud</div>
+                <div class="selector-item" data-tone="profetico">Profético</div>
+            </div>
+
+            <!-- 📝 Step 3: Context -->
+            <h2 class="section-title">3. Detalles Adicionales (Opcional)</h2>
+            <textarea id="context-input" placeholder="Ej: Es su cumpleaños 50, o está pasando por un examen difícil..."></textarea>
+
+            <!-- 🔥 Action -->
+            <button class="btn-forge" id="forge-btn">FORJAR ALIENTO</button>
+        </main>
+
+        <footer style="margin-top: 40px; text-align: center; font-size: 0.7rem; opacity: 0.4; padding-bottom: 20px;">
+            MUSICHRIS STUDIO &copy; 2026 | MINISTERIAL IA CLOUD
+        </footer>
+    </div>
+
+    <script src="src/ui_engine.js"></script>
+</body>
+</html>
