@@ -1,8 +1,8 @@
 // 🎞️ MusiChris Breath - Video Engine v1.0
 // Lógica de Renderizado Multimodal con FFmpeg
 
-const OUTRO_PATH = 'assets/images/outro.png';
-const OUTRO_DURATION = 4; // segundos
+const OUTRO_PATH = 'assets/video/outro_animado.mp4';
+const OUTRO_IS_VIDEO = true;
 
 /**
  * Función maestra para forjar el video ministerial
