@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const profiles = document.querySelectorAll('.profile-item');
     const tones = document.querySelectorAll('.tone-item');
-    const channels = document.querySelectorAll('.channel-item');
+    const channelElements = document.querySelectorAll('.channel-item');
     const forgeBtn = document.getElementById('forge-btn');
 
     let selectedProfile = null;
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 📡 Manejador de Canales (Usa la constante declarada arriba)
-    handleSelection(channels, (data) => {
+    handleSelection(channelElements, (data) => {
         selectedChannel = data.channel;
         console.log(`📡 Canal seleccionado: ${selectedChannel}`);
     });
