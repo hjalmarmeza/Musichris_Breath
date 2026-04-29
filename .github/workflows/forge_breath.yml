@@ -29,6 +29,7 @@ jobs:
           const profile = `${{ github.event.client_payload.profile }}`;
           const tone = `${{ github.event.client_payload.tone }}`;
           const context = `${{ github.event.client_payload.context }}`;
+          const timestamp = new Date().toISOString(); // Semilla temporal para frescura total
 
           // Función para insertar saltos de línea y que el texto no se salga de la pantalla (aprox 15-20 caracteres por línea)
           const wrapText = (text, maxChars = 18) => {
@@ -51,8 +52,8 @@ jobs:
             model: 'llama3.1-70b',
             response_format: { type: 'json_object' },
             messages: [
-              {role: 'system', content: 'Eres el Motor de Sabiduría y SEO de MusiChris Breath. Devuelve un JSON con: 1. "screen_1": Apertura (max 8 palabras). 2. "screen_2": Poder (max 8 palabras). 3. "description": Reflexión ministerial profunda (max 40 palabras). 4. "seo_title": Título épico y llamativo con emojis (max 60 caracteres). 5. "seo_tags": 10 tags separados por comas. NUNCA repitas palabras.'},
-              {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}`}
+              {role: 'system', content: 'Eres el Motor de Sabiduría y SEO de MusiChris Breath. Genera contenido TOTALMENTE ÚNICO, fresco y original cada vez. Evita clichés y estructuras repetitivas. Tu objetivo es que cada mensaje se sienta como una nueva revelación ministerial. Devuelve un JSON con: 1. "screen_1": Apertura (max 8 palabras). 2. "screen_2": Poder (max 8 palabras). 3. "description": Reflexión profunda (max 40 palabras). 4. "seo_title": Título épico (max 60 caracteres). 5. "seo_tags": 10 tags. NUNCA repitas palabras.'},
+              {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}, Semilla: ${timestamp}`}
             ]
           };
 
