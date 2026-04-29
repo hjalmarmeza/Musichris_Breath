@@ -36,7 +36,7 @@ async function uploadVideo() {
                     categoryId: '10' // Music
                 },
                 status: {
-                    privacyStatus: 'public', // Directo a público para el ministerio
+                    privacyStatus: 'unlisted', // Oculto para revisión ministerial
                     selfDeclaredMadeForKids: false
                 }
             },

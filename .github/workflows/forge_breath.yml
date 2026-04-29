@@ -25,12 +25,16 @@ jobs:
           echo "📺 Usando Video: assets/video/${{ github.event.client_payload.video }}"
           
           # Renderizado Real con FFmpeg (Logo Circular con Transparencia)
-          ffmpeg -i assets/video/${{ github.event.client_payload.video }} \
-                 -ss ${{ github.event.client_payload.start }} -i assets/audio/${{ github.event.client_payload.audio }} \
+          # Renderizado Ministerial Premium (Texto dinámico + Logo sincronizado)
+          ffmpeg -stream_loop -1 -i assets/video/${{ github.event.client_payload.video }} \
+                 -ss ${{ github.event.client_payload.start }} -t 25 -i assets/audio/${{ github.event.client_payload.audio }} \
                  -i assets/video/outro_animado.mp4 \
                  -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg]; \
+                                  [bg]drawtext=text='${{ github.event.client_payload.message }}':fontcolor=white:fontsize=75:x=(w-text_w)/2:y=(h-text_h)/2:shadowcolor=black:shadowx=4:shadowy=4:enable='between(t,0,15)'[txt]; \
                                   [2:v]scale=800:-1,colorkey=0x000000:0.1:0.1,format=yuva420p[logo]; \
-                                  [bg][logo]overlay=(W-w)/2:(H-h)/2[v]" \
+                                  [txt][logo]overlay=(W-w)/2:(H-h)/2:enable='gt(t,15)'[v_logo]; \
+                                  [v_logo]drawtext=text='@MusiChris_Studio':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2+450:shadowcolor=black:shadowx=2:shadowy=2:enable='gt(t,15)'[v_f1]; \
+                                  [v_f1]drawtext=text='Caminemos juntos en fe':fontcolor=white:fontsize=45:x=(w-text_w)/2:y=(h-text_h)/2+530:shadowcolor=black:shadowx=2:shadowy=2:enable='gt(t,15)'[v]" \
                  -map "[v]" -map 1:a -shortest -c:v libx264 -preset fast -pix_fmt yuv420p output_final.mp4
           
       - name: 🟢 Setup Node.js
