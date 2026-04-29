@@ -1,4 +1,4 @@
-// 💎 MusiChris Breath - UI Engine v1.0
+// 💎 MusiChris Breath - UI Engine v1.5.0
 document.addEventListener('DOMContentLoaded', () => {
     const profiles = document.querySelectorAll('.profile-item');
     const tones = document.querySelectorAll('.tone-item');
@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`🎨 Tono seleccionado: ${selectedTone}`);
     });
 
-    // 📡 Manejador de Canales (Usa la constante declarada arriba)
     handleSelection(channelElements, (data) => {
         selectedChannel = data.channel;
         console.log(`📡 Canal seleccionado: ${selectedChannel}`);
@@ -55,11 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const context = document.getElementById('context-input').value;
-        
         forgeBtn.innerText = 'FORJANDO ALIENTO...';
         forgeBtn.disabled = true;
 
-        // 🔐 Gestión de Autenticación
         let pat = localStorage.getItem('musichris_pat');
         if (!pat) {
             pat = prompt('⚠️ Por favor, ingresa tu GitHub Personal Access Token (PAT):');
@@ -71,7 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 📝 Generación de Mensaje Ministerial Enriquecido
         const songName = matrix[selectedProfile].audio.replace(/_/g, ' ').replace('.mp3', '');
         const baseMessage = `✨ *UN MENSAJE DE ALIENTO PARA TI* ✨\n\n¡Dios te bendiga! Quería compartir contigo esta palabra de fe y esperanza. 🙏\n\n🎶 *Escucha esta canción seleccionada especialmente para ti:* \n"${songName}"\n\n🌬️ *MusiChris Breath - El Soplo de Vida*\n\nQue este aliento fortalezca tu corazón hoy. ❤️`;
         
@@ -92,8 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             context: context,
                             audio: matrix[selectedProfile].audio,
                             video: matrix[selectedProfile].video,
-                            start: matrix[selectedProfile].start, // 🚀 Clímax activado
-                            message: baseMessage.replace(/\*/g, '') // Limpiar markdown para video
+                            start: matrix[selectedProfile].start,
+                            message: baseMessage.replace(/\*/g, '')
                         }
                     })
                 });
@@ -109,14 +105,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             const encodedMsg = encodeURIComponent(baseMessage);
             let shareUrl = "";
-
             switch(selectedChannel) {
                 case 'whatsapp': shareUrl = `https://wa.me/?text=${encodedMsg}`; break;
                 case 'telegram': shareUrl = `https://t.me/share/url?url=&text=${encodedMsg}`; break;
                 case 'sms': shareUrl = `sms:?body=${encodedMsg}`; break;
                 case 'mail': shareUrl = `mailto:?subject=Un mensaje de aliento para ti&body=${encodedMsg}`; break;
             }
-
             window.open(shareUrl, '_blank');
         }
         
