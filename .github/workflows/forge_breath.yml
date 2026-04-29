@@ -32,7 +32,7 @@ jobs:
           const timestamp = new Date().toISOString(); // Semilla temporal para frescura total
 
           // Función para insertar saltos de línea y que el texto no se salga de la pantalla (aprox 15-20 caracteres por línea)
-          const wrapText = (text, maxChars = 18) => {
+          const wrapText = (text, maxChars = 22) => {
             const words = text.split(' ');
             let lines = [];
             let currentLine = '';
@@ -51,7 +51,7 @@ jobs:
           const payload = {
             model: 'qwen-3-235b-a22b-instruct-2507',
             messages: [
-              {role: 'system', content: 'Eres el Maestro de Síntesis Ministerial de MusiChris Studio. Tu objetivo es la máxima "esencia con mínimas palabras". Cada palabra debe pesar. Devuelve un JSON estrictamente válido. REGLAS: "screen_1": Apertura impactante (máximo 5 palabras). "screen_2": Palabra de poder profunda (máximo 5 palabras). "description": Reflexión SEO breve. "seo_title": Título épico. "seo_tags": 10 tags. NO uses más de 5 palabras por pantalla.'},
+              {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales con sustancia y profundidad. REGLAS: "screen_1": Apertura potente (máximo 15 palabras). "screen_2": Palabra de poder profunda (máximo 15 palabras). "description": Reflexión SEO breve. "seo_title": Título épico. "seo_tags": 10 tags. Mantén el equilibrio: esencia ministerial con máximo 15 palabras por pantalla.'},
               {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}, Semilla: ${timestamp}`}
             ]
           };
@@ -131,9 +131,9 @@ jobs:
                  -ss ${{ github.event.client_payload.start }} -t 25 -i assets/audio/${{ github.event.client_payload.audio }} \
                  -i assets/video/outro_animado.mp4 \
                  -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg]; \
-                                   [bg]drawbox=y=(ih-600)/2-200:color=black@0.5:w=iw:h=600:t=fill:enable='between(t,0,15)'[bgbox]; \
-                                   [bgbox]drawtext=textfile=s1.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=110:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.9:shadowx=8:shadowy=8:enable='between(t,0,7)':line_spacing=40:fix_bounds=1[txt1]; \
-                                   [txt1]drawtext=textfile=s2.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=110:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.9:shadowx=8:shadowy=8:enable='between(t,7,15)':line_spacing=40:fix_bounds=1[txt2]; \
+                                   [bg]drawbox=y=(ih-700)/2-200:color=black@0.5:w=iw:h=700:t=fill:enable='between(t,0,15)'[bgbox]; \
+                                   [bgbox]drawtext=textfile=s1.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=80:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.9:shadowx=6:shadowy=6:enable='between(t,0,7)':line_spacing=35:fix_bounds=1[txt1]; \
+                                   [txt1]drawtext=textfile=s2.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=80:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.9:shadowx=6:shadowy=6:enable='between(t,7,15)':line_spacing=35:fix_bounds=1[txt2]; \
                                    [2:v]scale=850:-1,colorkey=0x000000:0.1:0.1,format=yuva420p[logo]; \
                                    [txt2][logo]overlay=(W-w)/2:(H-h)/2-250:enable='gt(t,15)'[v_logo]; \
                                    [v_logo]drawtext=text='@MusiChris_Studio':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=65:x=(w-text_w)/2:y=(h-text_h)/2+200:shadowcolor=black@0.8:shadowx=4:shadowy=4:enable='gt(t,15)'[v_handle]; \
