@@ -99,17 +99,38 @@ jobs:
                 try {
                   const response = JSON.parse(data);
                   const rawContent = response.choices[0].message.content;
-                  const content = JSON.parse(cleanJSON(rawContent));
+                  const cleanData = JSON.parse(cleanJSON(rawContent));
                   
-                  const s1 = wrapText(content.screen_1.replace(/['":]/g, "").toUpperCase());
-                  const s2 = wrapText(content.screen_2.replace(/['":]/g, "").toUpperCase());
-                  
+                  // Función de envoltorio de texto (Flow Wrap Engine)
+                  const wrapText = (text, max) => {
+                    if (!text) return '';
+                    const parts = text.split(' — ');
+                    const content = parts[0];
+                    const citation = parts[1] ? `\n\n— ${parts[1].toUpperCase()}` : '';
+                    const words = content.split(' ');
+                    let wrapped = '';
+                    let line = '';
+                    words.forEach(w => {
+                      if ((line + w).length > max) {
+                        wrapped += line.trim() + '\n';
+                        line = w + ' ';
+                      } else {
+                        line += w + ' ';
+                      }
+                    });
+                    wrapped += line.trim();
+                    return wrapped + citation;
+                  };
+
+                  const s1 = wrapText(cleanData.screen_1, 24);
+                  const s2 = wrapText(cleanData.screen_2, 24);
+
                   fs.writeFileSync('s1.txt', s1);
                   fs.writeFileSync('s2.txt', s2);
                   
-                  fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TITLE=${content.seo_title} #shorts\n`);
-                  fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TAGS=${content.seo_tags}\n`);
-                  fs.appendFileSync(process.env.GITHUB_ENV, `DESC_TEXT<<VAR_EOF\n${content.description}\nVAR_EOF\n`);
+                  fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TITLE=${cleanData.seo_title} #shorts\n`);
+                  fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TAGS=${cleanData.seo_tags}\n`);
+                  fs.appendFileSync(process.env.GITHUB_ENV, `DESC_TEXT<<VAR_EOF\n${cleanData.description}\nVAR_EOF\n`);
                   
                   console.log(`✅ ÉXITO con ${currentModel}.`);
                 } catch (e) {
@@ -138,15 +159,15 @@ jobs:
           # Renderizado con Banda Cinematográfica de Legibilidad (0-15s)
           ffmpeg -t 25 -stream_loop -1 -i assets/video/${{ github.event.client_payload.video }} \
                  -ss ${{ github.event.client_payload.start }} -t 25 -i assets/audio/${{ github.event.client_payload.audio }} \
-                 -i assets/images/logo_breath.png -filter_complex \
-                 "[2:v]scale=220:220[logo]; \
+                 -i assets/images/logo_breath.png -stream_loop -1 -i assets/video/outro_animado.mp4 -filter_complex \
+                 "[3:v]scale=500:-1[anim_logo]; \
                   [0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920[bg]; \
-                  [bg]drawbox=x=100:y=(ih-800)/2:w=iw-200:h=800:color=black@0.6:t=fill:enable='between(t,0,15)'[bgbox]; \
-                  [bgbox]drawtext=textfile=s1.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2:shadowcolor=black@0.9:shadowx=6:shadowy=6:enable='between(t,0,7)':line_spacing=35:fix_bounds=1[txt1]; \
-                  [txt1]drawtext=textfile=s2.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2:shadowcolor=black@0.9:shadowx=6:shadowy=6:enable='between(t,7,15)':line_spacing=35:fix_bounds=1[txt2]; \
-                  [txt2][logo]overlay=x=(W-w)/2:y=(H-h)/2-150:enable='between(t,20,25)'[bglogo]; \
-                  [bglogo]drawtext=text='@Musichris_Studio':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=50:x=(w-text_w)/2:y=(h/2)+100:enable='between(t,20,25)':shadowcolor=black@0.8:shadowx=4:shadowy=4[outro1]; \
-                  [outro1]drawtext=text='Caminemos juntos en fe':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=35:x=(w-text_w)/2:y=(h/2)+180:enable='between(t,20,25)':shadowcolor=black@0.8:shadowx=3:shadowy=3[v]" \
+                  [bg]drawbox=x=50:y=(ih-900)/2:w=iw-100:h=900:color=black@0.7:t=fill:enable='between(t,0,15)'[bgbox]; \
+                  [bgbox]drawtext=textfile=s1.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2:shadowcolor=black@0.9:shadowx=6:shadowy=6:enable='between(t,0,7.5)':line_spacing=35:fix_bounds=1[txt1]; \
+                  [txt1]drawtext=textfile=s2.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2:shadowcolor=black@0.9:shadowx=6:shadowy=6:enable='between(t,7.5,15)':line_spacing=35:fix_bounds=1[txt2]; \
+                  [txt2][anim_logo]overlay=x=(W-w)/2:y=(H-h)/2-200:enable='between(t,20,25)'[bglogo]; \
+                  [bglogo]drawtext=text='@Musichris_Studio':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=50:x=(w-text_w)/2:y=(h/2)+120:enable='between(t,20,25)':shadowcolor=black@0.8:shadowx=4:shadowy=4[outro1]; \
+                  [outro1]drawtext=text='Caminemos juntos en fe':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=35:x=(w-text_w)/2:y=(h/2)+200:enable='between(t,20,25)':shadowcolor=black@0.8:shadowx=3:shadowy=3[v]" \
                  -map "[v]" -map 1:a -c:v libx264 -preset fast -pix_fmt yuv420p -t 25 -y output_final.mp4
           
       - name: 🟢 Setup Node.js
