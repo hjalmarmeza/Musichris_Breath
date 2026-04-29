@@ -75,8 +75,22 @@
         </footer>
     </div>
 
-    <script src="src/ui_engine.js?v=1.1.0"></script>
     <script>
+        // 🛡️ Lógica de Entrada Blindada - Funciona incluso si falla el JS externo
+        document.addEventListener('DOMContentLoaded', () => {
+            const splash = document.getElementById('splash-screen');
+            if (splash) {
+                splash.style.cursor = 'pointer';
+                splash.addEventListener('click', () => {
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                    }, 500);
+                    console.log('🌬️ Breath: Entrada concedida');
+                });
+            }
+        });
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
@@ -85,5 +99,6 @@
             });
         }
     </script>
+    <script src="src/ui_engine.js?v=1.1.0"></script>
 </body>
 </html>

@@ -1,13 +1,5 @@
 // 💎 MusiChris Breath - UI Engine v1.0
 document.addEventListener('DOMContentLoaded', () => {
-    const splashScreen = document.getElementById('splash-screen');
-    if (splashScreen) {
-        splashScreen.addEventListener('click', () => {
-            splashScreen.style.opacity = '0';
-            setTimeout(() => splashScreen.style.display = 'none', 800);
-        });
-    }
-
     const profiles = document.querySelectorAll('.profile-item');
     const tones = document.querySelectorAll('.tone-item');
     const channelElements = document.querySelectorAll('.channel-item');
