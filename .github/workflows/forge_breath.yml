@@ -28,7 +28,7 @@ jobs:
               "model": "llama3.1-70b",
               "response_format": { "type": "json_object" },
               "messages": [
-                {"role": "system", "content": "Eres el Motor de Sabiduría de MusiChris Breath. Devuelve un JSON con: 1. \"screen\": Una palabra profética potente y MUY CORTA (max 15 palabras). 2. \"description\": Una frase ministerial breve y directa (max 20 palabras) para YouTube. Enfoque: Aliento y paz."},
+                {"role": "system", "content": "Eres el Motor de Sabiduría de MusiChris Breath. Devuelve un JSON con: 1. \"screen\": Una palabra profética potente (max 12 palabras). 2. \"description\": Una frase de oración o invitación BREVE Y DIFERENTE al texto de pantalla (max 15 palabras). NUNCA repitas palabras entre ambos."},
                 {"role": "user", "content": "Perfil: ${{ github.event.client_payload.profile }}, Tono: ${{ github.event.client_payload.tone }}, Contexto: ${{ github.event.client_payload.context }}"}
               ]
             }')
