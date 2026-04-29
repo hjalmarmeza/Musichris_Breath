@@ -11,45 +11,116 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 🎥 Install FFmpeg
+      - name: 🎥 Install FFmpeg & Fonts
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg fonts-liberation
+          # Localizar el path de la fuente para asegurar que FFmpeg la encuentre
+          echo "FONT_PATH=/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" >> $GITHUB_ENV
 
       - name: 🧠 AI Prophetic Generation (Triple Phase)
         env:
           CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
         run: |
-          echo "🤖 Generando Narrativa de 3 Fases con IA..."
-          RESPONSE=$(curl -s https://api.cerebras.ai/v1/chat/completions \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer $CEREBRAS_API_KEY" \
-            -d '{
-              "model": "llama3.1-70b",
-              "response_format": { "type": "json_object" },
-              "messages": [
-                {"role": "system", "content": "Eres el Motor de Sabiduría de MusiChris Breath. Devuelve un JSON con: 1. \"screen_1\": Palabra de apertura (max 10 palabras). 2. \"screen_2\": Palabra de poder diferente (max 10 palabras). 3. \"description\": Invitación breve para YouTube (max 15 palabras). NUNCA repitas palabras."},
-                {"role": "user", "content": "Perfil: ${{ github.event.client_payload.profile }}, Tono: ${{ github.event.client_payload.tone }}, Contexto: ${{ github.event.client_payload.context }}"}
-              ]
-            }')
-          echo "S1=$(echo $RESPONSE | jq -r '.choices[0].message.content | fromjson | .screen_1')" >> $GITHUB_ENV
-          echo "S2=$(echo $RESPONSE | jq -r '.choices[0].message.content | fromjson | .screen_2')" >> $GITHUB_ENV
-          echo "DESC_TEXT=$(echo $RESPONSE | jq -r '.choices[0].message.content | fromjson | .description')" >> $GITHUB_ENV
+          node << 'EOF'
+          const https = require('https');
+          const fs = require('fs');
+
+          const profile = `${{ github.event.client_payload.profile }}`;
+          const tone = `${{ github.event.client_payload.tone }}`;
+          const context = `${{ github.event.client_payload.context }}`;
+
+          // Función para insertar saltos de línea y que el texto no se salga de la pantalla (aprox 15-20 caracteres por línea)
+          const wrapText = (text, maxChars = 18) => {
+            const words = text.split(' ');
+            let lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+              if ((currentLine + word).length > maxChars) {
+                lines.push(currentLine.trim());
+                currentLine = word + ' ';
+              } else {
+                currentLine += word + ' ';
+              }
+            });
+            lines.push(currentLine.trim());
+            return lines.join('\n');
+          };
+
+          const payload = {
+            model: 'llama3.1-70b',
+            response_format: { type: 'json_object' },
+            messages: [
+              {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Breath. Devuelve un JSON con: 1. "screen_1": Palabra de apertura (max 8 palabras). 2. "screen_2": Palabra de poder diferente (max 8 palabras). 3. "description": Invitación breve para YouTube (max 15 palabras). NUNCA repitas palabras ni uses comillas.'},
+              {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}`}
+            ]
+          };
+
+          const options = {
+            hostname: 'api.cerebras.ai',
+            path: '/v1/chat/completions',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + process.env.CEREBRAS_API_KEY
+            }
+          };
+
+          const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => data += chunk);
+            res.on('end', () => {
+              if (res.statusCode !== 200) {
+                console.error('API Error:', data);
+                process.exit(1);
+              }
+              try {
+                const response = JSON.parse(data);
+                const content = JSON.parse(response.choices[0].message.content);
+                
+                // Procesar y envolver texto para visualización vertical
+                const s1 = wrapText(content.screen_1.replace(/['":]/g, "").toUpperCase());
+                const s2 = wrapText(content.screen_2.replace(/['":]/g, "").toUpperCase());
+                
+                fs.writeFileSync('s1.txt', s1);
+                fs.writeFileSync('s2.txt', s2);
+                
+                console.log('--- TEXTO S1 ---\n' + s1);
+                console.log('--- TEXTO S2 ---\n' + s2);
+                
+                fs.appendFileSync(process.env.GITHUB_ENV, `DESC_TEXT<<VAR_EOF\n${content.description}\nVAR_EOF\n`);
+                console.log('✅ Narrativa generada y formateada.');
+              } catch (e) {
+                console.error('Parse Error:', e);
+                process.exit(1);
+              }
+            });
+          });
+
+          req.on('error', (e) => {
+            console.error('Request Error:', e);
+            process.exit(1);
+          });
+
+          req.write(JSON.stringify(payload));
+          req.end();
+          EOF
 
       - name: 🔨 Forging Ministerial Video
         run: |
-          # Renderizado Ministerial con Secuencia de 3 Fases
+          # Renderizado con Banda Cinematográfica de Legibilidad (0-15s)
           ffmpeg -stream_loop -1 -i assets/video/${{ github.event.client_payload.video }} \
                  -ss ${{ github.event.client_payload.start }} -t 25 -i assets/audio/${{ github.event.client_payload.audio }} \
                  -i assets/video/outro_animado.mp4 \
                  -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg]; \
-                                  [bg]drawtext=text='${{ env.S1 }}':fontcolor=white:fontsize=85:x=(w-text_w)/2:y=(h-text_h)/2-150:shadowcolor=black:shadowx=4:shadowy=4:enable='between(t,0,7.5)':line_spacing=25[txt1]; \
-                                  [txt1]drawtext=text='${{ env.S2 }}':fontcolor=white:fontsize=85:x=(w-text_w)/2:y=(h-text_h)/2-150:shadowcolor=black:shadowx=4:shadowy=4:enable='between(t,7.5,15)':line_spacing=25[txt2]; \
+                                  [bg]drawbox=y=(h-750)/2-200:color=black@0.4:width=w:height=750:t=fill:enable='between(t,0,15)'[bgbox]; \
+                                  [bgbox]drawtext=textfile=s1.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=95:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.8:shadowx=5:shadowy=5:enable='between(t,0,7)':line_spacing=30:fix_bounds=1[txt1]; \
+                                  [txt1]drawtext=textfile=s2.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=95:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.8:shadowx=5:shadowy=5:enable='between(t,7,15)':line_spacing=30:fix_bounds=1[txt2]; \
                                   [2:v]scale=800:-1,colorkey=0x000000:0.1:0.1,format=yuva420p[logo]; \
                                   [txt2][logo]overlay=(W-w)/2:(H-h)/2-200:enable='gt(t,15)'[v_logo]; \
-                                  [v_logo]drawtext=text='@MusiChris_Studio':fontcolor=white:fontsize=55:x=(w-text_w)/2:y=(h-text_h)/2+230:shadowcolor=black:shadowx=2:shadowy=2:enable='gt(t,15)'[v_handle]; \
-                                  [v_handle]drawbox=y=h-250:color=white@0.15:width=850:height=100:t=fill:x=(w-850)/2:enable='gt(t,15)'[v_widget]; \
-                                  [v_widget]drawtext=text='Caminemos juntos en fe':fontcolor=white:fontsize=42:x=(w-text_w)/2:y=h-220:shadowcolor=black@0.5:shadowx=1:shadowy=1:enable='gt(t,15)'[v]" \
+                                  [v_logo]drawtext=text='@MusiChris_Studio':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2+250:shadowcolor=black:shadowx=3:shadowy=3:enable='gt(t,15)'[v_handle]; \
+                                  [v_handle]drawbox=y=h-250:color=white@0.2:width=900:height=110:t=fill:x=(w-900)/2:enable='gt(t,15)'[v_widget]; \
+                                  [v_widget]drawtext=text='Caminemos juntos en fe':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=45:x=(w-text_w)/2:y=h-220:shadowcolor=black@0.5:shadowx=1:shadowy=1:enable='gt(t,15)'[v]" \
                  -map "[v]" -map 1:a -shortest -c:v libx264 -preset fast -pix_fmt yuv420p output_final.mp4
           
       - name: 🟢 Setup Node.js
