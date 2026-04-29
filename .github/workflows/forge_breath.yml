@@ -49,7 +49,7 @@ jobs:
           };
 
           const payload = {
-            model: 'llama-3.3-70b',
+            model: 'llama3.1-8b',
             response_format: { type: 'json_object' },
             messages: [
               {role: 'system', content: 'Eres el Motor de Sabiduría y SEO de MusiChris Breath. Genera contenido TOTALMENTE ÚNICO, fresco y original cada vez. Evita clichés y estructuras repetitivas. Tu objetivo es que cada mensaje se sienta como una nueva revelación ministerial. Devuelve un JSON con: 1. "screen_1": Apertura (max 8 palabras). 2. "screen_2": Poder (max 8 palabras). 3. "description": Reflexión profunda (max 40 palabras). 4. "seo_title": Título épico (max 60 caracteres). 5. "seo_tags": 10 tags. NUNCA repitas palabras.'},
