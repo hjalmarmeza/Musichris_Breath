@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const songName = matrix[selectedProfile].audio.replace(/_/g, ' ').replace('.mp3', '');
-        const baseMessage = `🌬️ MusiChris Breath - Un mensaje de aliento para ti.\n\nEscuchando: ${songName}`;
+        const baseMessage = `✨ Un mensaje de aliento para ti | MusiChris Studio\n\nEscuchando: ${songName}`;
         
         if (selectedChannel === 'youtube') {
             try {

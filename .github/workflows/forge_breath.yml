@@ -62,8 +62,8 @@ jobs:
         env:
           YOUTUBE_CREDENTIALS: ${{ secrets.YOUTUBE_CREDENTIALS }}
           YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
-          VIDEO_TITLE: "Mensaje de Aliento - MusiChris Breath"
-          VIDEO_DESCRIPTION: "${{ env.DESC_TEXT }}\n\n🎬 MusiChris Studio\n🌬️ MusiChris Breath Engine"
+          VIDEO_TITLE: "Mensaje de Aliento | MusiChris Studio"
+          VIDEO_DESCRIPTION: "${{ env.DESC_TEXT }}\n\n🎬 MusiChris Studio"
         run: |
           echo "📤 Subiendo a Musichris Studio..."
           node src/upload_engine.js output_final.mp4
