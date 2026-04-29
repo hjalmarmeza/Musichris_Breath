@@ -17,15 +17,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedTone = null;
     let selectedChannel = 'youtube'; // Canal por defecto
 
-    // 🎼 Matriz Maestra - Audio y Video
+    // 🎼 Matriz Maestra - Audio y Video (Normalizada para Cloud)
     const matrix = {
-        paternal: { audio: "Manos de Gracia..mp3", video: "320766_medium.mp4" },
-        legado: { audio: "Tu Mirada Me Sigue.mp3", video: "64137-509542890_medium.mp4" },
-        autoridad: { audio: "León y Cordero.mp3", video: "41300-429396316_medium.mp4" },
-        guerra: { audio: "La Voz de Jehová.mp3", video: "63736-507811774_medium.mp4" },
-        sanidad: { audio: "Consumado es.mp3", video: "144967-785786009_medium.mp4" },
+        paternal: { audio: "Manos_de_Gracia.mp3", video: "320766_medium.mp4" },
+        legado: { audio: "Tu_Mirada_Me_Sigue.mp3", video: "64137-509542890_medium.mp4" },
+        autoridad: { audio: "Leon_y_Cordero.mp3", video: "41300-429396316_medium.mp4" },
+        guerra: { audio: "La_Voz_de_Jehova.mp3", video: "63736-507811774_medium.mp4" },
+        sanidad: { audio: "Consumado_es.mp3", video: "144967-785786009_medium.mp4" },
         amistad: { audio: "Emmanuel.mp3", video: "149375-796105802_medium.mp4" },
-        mision: { audio: "La ofrenda real.mp3", video: "199379-910162329_medium.mp4" },
+        mision: { audio: "La_ofrenda_real.mp3", video: "199379-910162329_medium.mp4" },
         sabiduria: { audio: "Quietud.mp3", video: "203872-922675721_medium.mp4" }
     };
 
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     handleSelection(profiles, (data) => {
         selectedProfile = data.profile;
-        console.log(`👤 Perfil seleccionado: ${selectedProfile} (Canción: ${matrix[selectedProfile].audio})`);
+        console.log(`👤 Perfil seleccionado: ${selectedProfile}`);
     });
 
     handleSelection(tones, (data) => {
@@ -70,20 +70,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // 🔐 Gestión de Autenticación
         let pat = localStorage.getItem('musichris_pat');
         if (!pat) {
-            pat = prompt('⚠️ Por favor, ingresa tu GitHub Personal Access Token (PAT) para activar la forja ministerial:');
+            pat = prompt('⚠️ Por favor, ingresa tu GitHub Personal Access Token (PAT):');
             if (pat) localStorage.setItem('musichris_pat', pat);
             else {
-                alert('Se requiere el Token para forjar el aliento.');
                 forgeBtn.innerText = 'FORJAR ALIENTO';
                 forgeBtn.disabled = false;
                 return;
             }
         }
 
-        const message = "¡Dios te bendiga! Quería compartir contigo este mensaje de aliento..."; // Aquí irá la IA real
+        // 📝 Generación de Mensaje Ministerial Enriquecido
+        const songName = matrix[selectedProfile].audio.replace(/_/g, ' ').replace('.mp3', '');
+        const baseMessage = `✨ *UN MENSAJE DE ALIENTO PARA TI* ✨\n\n¡Dios te bendiga! Quería compartir contigo esta palabra de fe y esperanza. 🙏\n\n🎶 *Escucha esta canción seleccionada especialmente para ti:* \n"${songName}"\n\n🌬️ *MusiChris Breath - El Soplo de Vida*\n\nQue este aliento fortalezca tu corazón hoy. ❤️`;
         
         if (selectedChannel === 'youtube') {
-            // Lógica de Forja de Video en Nube
             try {
                 const response = await fetch(`https://api.github.com/repos/hjalmarmeza/Musichris_Breath/dispatches`, {
                     method: 'POST',
@@ -100,32 +100,35 @@ document.addEventListener('DOMContentLoaded', () => {
                             context: context,
                             audio: matrix[selectedProfile].audio,
                             video: matrix[selectedProfile].video,
-                            message: message
+                            message: baseMessage.replace(/\*/g, '') // Limpiar markdown para video
                         }
                     })
                 });
 
                 if (response.ok) {
-                    alert(`¡Aliento Forjado! 🌬️💎\n\nYouTube está procesando tu video.\nCanción: ${matrix[selectedProfile].audio}`);
+                    alert(`¡Misión Aceptada! 🌬️💎\n\nEl servidor está forjando tu video.\nEstará listo en unos minutos.`);
                 } else {
-                    throw new Error('Error al conectar con GitHub');
+                    throw new Error('Error de conexión con el servidor de forja.');
                 }
             } catch (err) {
                 alert(`Error: ${err.message}`);
             }
         } else {
-            // Lógica de Compartir Directo (WhatsApp, etc)
+            const encodedMsg = encodeURIComponent(baseMessage);
             let shareUrl = "";
-            const fullMessage = encodeURIComponent(`${message}\n\nEscucha esta canción para ti: ${matrix[selectedProfile].audio}`);
 
             switch(selectedChannel) {
-                case 'whatsapp': shareUrl = `https://wa.me/?text=${fullMessage}`; break;
-                case 'telegram': shareUrl = `https://t.me/share/url?url=&text=${fullMessage}`; break;
-                case 'sms': shareUrl = `sms:?body=${fullMessage}`; break;
-                case 'mail': shareUrl = `mailto:?subject=Un mensaje de aliento para ti&body=${fullMessage}`; break;
+                case 'whatsapp': shareUrl = `https://wa.me/?text=${encodedMsg}`; break;
+                case 'telegram': shareUrl = `https://t.me/share/url?url=&text=${encodedMsg}`; break;
+                case 'sms': shareUrl = `sms:?body=${encodedMsg}`; break;
+                case 'mail': shareUrl = `mailto:?subject=Un mensaje de aliento para ti&body=${encodedMsg}`; break;
             }
 
             window.open(shareUrl, '_blank');
         }
+        
+        forgeBtn.innerText = 'FORJAR ALIENTO';
+        forgeBtn.disabled = false;
+    });
     });
 });
