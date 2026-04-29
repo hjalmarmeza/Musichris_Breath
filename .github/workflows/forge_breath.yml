@@ -48,72 +48,76 @@ jobs:
             return lines.join('\n');
           };
 
-          const payload = {
-            model: 'gpt-oss-120b',
-            messages: [
-              {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales con sustancia y profundidad. REGLAS: "screen_1": Apertura potente (máximo 15 palabras). "screen_2": Palabra de poder profunda (máximo 15 palabras). "description": Reflexión SEO breve. "seo_title": Título épico. "seo_tags": 10 tags. Mantén el equilibrio: esencia ministerial con máximo 15 palabras por pantalla.'},
-              {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}, Semilla: ${timestamp}`}
-            ]
-          };
-
-          const options = {
-            hostname: 'api.cerebras.ai',
-            path: '/v1/chat/completions',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + process.env.CEREBRAS_API_KEY
+          const models = ['qwen-3-235b-a22b-instruct-2507', 'llama3.1-8b', 'zai-glm-4.7', 'gpt-oss-120b'];
+          
+          async function generateProphecy(modelIndex = 0) {
+            if (modelIndex >= models.length) {
+              console.error('❌ Todos los modelos fallaron.');
+              process.exit(1);
             }
-          };
 
-          const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', (chunk) => data += chunk);
-            res.on('end', () => {
-              if (res.statusCode !== 200) {
-                console.error('❌ API Error:', data);
-                // Intento de listar modelos disponibles para depuración
-                console.log('--- Intentando listar modelos disponibles para depuración ---');
-                https.get({
-                  hostname: 'api.cerebras.ai',
-                  path: '/v1/models',
-                  headers: { 'Authorization': 'Bearer ' + process.env.CEREBRAS_API_KEY }
-                }, (resMod) => {
-                  let modData = '';
-                  resMod.on('data', (c) => modData += c);
-                  resMod.on('end', () => {
-                    try {
-                      const mods = JSON.parse(modData);
-                      console.log('Modelos disponibles:', mods.data.map(m => m.id).join(', '));
-                    } catch(e) { console.log('No se pudo listar modelos:', modData); }
-                    process.exit(1);
-                  });
-                });
-                return;
+            const currentModel = models[modelIndex];
+            console.log(`🧠 Intentando con modelo: ${currentModel}...`);
+
+            const payload = {
+              model: currentModel,
+              messages: [
+                {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales con sustancia y profundidad. REGLAS: Responde EXCLUSIVAMENTE con un JSON válido. "screen_1": Apertura potente (máximo 15 palabras). "screen_2": Palabra de poder profunda (máximo 15 palabras). "description": Reflexión SEO breve. "seo_title": Título épico. "seo_tags": 10 tags.'},
+                {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}, Semilla: ${timestamp}`}
+              ]
+            };
+
+            const options = {
+              hostname: 'api.cerebras.ai',
+              path: '/v1/chat/completions',
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + process.env.CEREBRAS_API_KEY
               }
-              try {
-                const response = JSON.parse(data);
-                const content = JSON.parse(response.choices[0].message.content);
-                
-                // Procesar y envolver texto para visualización vertical
-                const s1 = wrapText(content.screen_1.replace(/['":]/g, "").toUpperCase());
-                const s2 = wrapText(content.screen_2.replace(/['":]/g, "").toUpperCase());
-                
-                fs.writeFileSync('s1.txt', s1);
-                fs.writeFileSync('s2.txt', s2);
-                
-                // Export metadata to GITHUB_ENV
-                fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TITLE=${content.seo_title} #shorts\n`);
-                fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TAGS=${content.seo_tags}\n`);
-                fs.appendFileSync(process.env.GITHUB_ENV, `DESC_TEXT<<VAR_EOF\n${content.description}\nVAR_EOF\n`);
-                
-                console.log('✅ Narrativa y SEO generados correctamente.');
-              } catch (e) {
-                console.error('Parse Error:', e);
-                process.exit(1);
-              }
+            };
+
+            const req = https.request(options, (res) => {
+              let data = '';
+              res.on('data', (chunk) => data += chunk);
+              res.on('end', () => {
+                if (res.statusCode !== 200) {
+                  console.warn(`⚠️ Fallo con ${currentModel}: ${res.statusCode}`);
+                  generateProphecy(modelIndex + 1);
+                  return;
+                }
+                try {
+                  const response = JSON.parse(data);
+                  const content = JSON.parse(response.choices[0].message.content);
+                  
+                  const s1 = wrapText(content.screen_1.replace(/['":]/g, "").toUpperCase());
+                  const s2 = wrapText(content.screen_2.replace(/['":]/g, "").toUpperCase());
+                  
+                  fs.writeFileSync('s1.txt', s1);
+                  fs.writeFileSync('s2.txt', s2);
+                  
+                  fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TITLE=${content.seo_title} #shorts\n`);
+                  fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TAGS=${content.seo_tags}\n`);
+                  fs.appendFileSync(process.env.GITHUB_ENV, `DESC_TEXT<<VAR_EOF\n${content.description}\nVAR_EOF\n`);
+                  
+                  console.log(`✅ ÉXITO con modelo ${currentModel}. Narrativa generada.`);
+                } catch (e) {
+                  console.warn(`⚠️ Error de parseo con ${currentModel}. Reintentando con el siguiente...`);
+                  generateProphecy(modelIndex + 1);
+                }
+              });
             });
-          });
+
+            req.on('error', (e) => {
+              console.warn(`⚠️ Error de red con ${currentModel}. Reintentando...`);
+              generateProphecy(modelIndex + 1);
+            });
+
+            req.write(JSON.stringify(payload));
+            req.end();
+          }
+
+          generateProphecy();
 
           req.on('error', (e) => {
             console.error('Request Error:', e);
