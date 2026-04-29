@@ -131,14 +131,14 @@ jobs:
                  -ss ${{ github.event.client_payload.start }} -t 25 -i assets/audio/${{ github.event.client_payload.audio }} \
                  -i assets/video/outro_animado.mp4 \
                  -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg]; \
-                                  [bg]drawbox=y=(h-750)/2-200:color=black@0.4:width=w:height=750:t=fill:enable='between(t,0,15)'[bgbox]; \
-                                  [bgbox]drawtext=textfile=s1.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=95:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.8:shadowx=5:shadowy=5:enable='between(t,0,7)':line_spacing=30:fix_bounds=1[txt1]; \
-                                  [txt1]drawtext=textfile=s2.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=95:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.8:shadowx=5:shadowy=5:enable='between(t,7,15)':line_spacing=30:fix_bounds=1[txt2]; \
-                                  [2:v]scale=800:-1,colorkey=0x000000:0.1:0.1,format=yuva420p[logo]; \
-                                  [txt2][logo]overlay=(W-w)/2:(H-h)/2-200:enable='gt(t,15)'[v_logo]; \
-                                  [v_logo]drawtext=text='@MusiChris_Studio':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2+250:shadowcolor=black:shadowx=3:shadowy=3:enable='gt(t,15)'[v_handle]; \
-                                  [v_handle]drawbox=y=h-250:color=white@0.2:width=900:height=110:t=fill:x=(w-900)/2:enable='gt(t,15)'[v_widget]; \
-                                  [v_widget]drawtext=text='Caminemos juntos en fe':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=45:x=(w-text_w)/2:y=h-220:shadowcolor=black@0.5:shadowx=1:shadowy=1:enable='gt(t,15)'[v]" \
+                                   [bg]drawbox=y=(ih-750)/2-200:color=black@0.4:w=iw:h=750:t=fill:enable='between(t,0,15)'[bgbox]; \
+                                   [bgbox]drawtext=textfile=s1.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=95:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.8:shadowx=5:shadowy=5:enable='between(t,0,7)':line_spacing=30:fix_bounds=1[txt1]; \
+                                   [txt1]drawtext=textfile=s2.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=95:x=(w-text_w)/2:y=(h-text_h)/2-200:shadowcolor=black@0.8:shadowx=5:shadowy=5:enable='between(t,7,15)':line_spacing=30:fix_bounds=1[txt2]; \
+                                   [2:v]scale=800:-1,colorkey=0x000000:0.1:0.1,format=yuva420p[logo]; \
+                                   [txt2][logo]overlay=(W-w)/2:(H-h)/2-200:enable='gt(t,15)'[v_logo]; \
+                                   [v_logo]drawtext=text='@MusiChris_Studio':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2+250:shadowcolor=black:shadowx=3:shadowy=3:enable='gt(t,15)'[v_handle]; \
+                                   [v_handle]drawbox=y=ih-250:color=white@0.2:w=900:h=110:t=fill:x=(iw-900)/2:enable='gt(t,15)'[v_widget]; \
+                                   [v_widget]drawtext=text='Caminemos juntos en fe':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=45:x=(w-text_w)/2:y=h-220:shadowcolor=black@0.5:shadowx=1:shadowy=1:enable='gt(t,15)'[v]" \
                  -map "[v]" -map 1:a -shortest -c:v libx264 -preset fast -pix_fmt yuv420p output_final.mp4
           
       - name: 🟢 Setup Node.js
