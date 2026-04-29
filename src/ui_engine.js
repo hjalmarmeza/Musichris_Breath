@@ -123,5 +123,4 @@ document.addEventListener('DOMContentLoaded', () => {
         forgeBtn.innerText = 'FORJAR ALIENTO';
         forgeBtn.disabled = false;
     });
-    });
 });
