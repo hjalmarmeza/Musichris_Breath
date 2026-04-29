@@ -76,5 +76,14 @@
     </div>
 
     <script src="src/ui_engine.js?v=1.1.0"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('🌬️ Breath PWA: Motor de auto-actualización activo'))
+                    .catch(err => console.log('❌ Error en PWA:', err));
+            });
+        }
+    </script>
 </body>
 </html>
