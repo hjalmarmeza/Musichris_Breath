@@ -24,11 +24,9 @@ jobs:
           echo "🎼 Usando Audio: assets/audio/${{ github.event.client_payload.audio }}"
           echo "📺 Usando Video: assets/video/${{ github.event.client_payload.video }}"
           
-          # Renderizado Real con FFmpeg
-          # 1. Generamos el script de voz o texto con Cerebras (Simulado por ahora)
-          # 2. Unimos Fondo + Audio + Outro Animado
+          # Renderizado Real con FFmpeg (Con Seek al Clímax)
           ffmpeg -i assets/video/${{ github.event.client_payload.video }} \
-                 -i assets/audio/${{ github.event.client_payload.audio }} \
+                 -ss ${{ github.event.client_payload.start }} -i assets/audio/${{ github.event.client_payload.audio }} \
                  -i assets/video/outro_animado.mp4 \
                  -filter_complex "[0:v][2:v]concat=n=2:v=1:a=0[v]" \
                  -map "[v]" -map 1:a -shortest output_final.mp4

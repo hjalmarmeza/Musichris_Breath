@@ -17,16 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedTone = null;
     let selectedChannel = 'youtube'; // Canal por defecto
 
-    // 🎼 Matriz Maestra - Audio y Video (Normalizada para Cloud)
+    // 🎼 Matriz Maestra - Audio y Video (Puntos de Clímax Ministerial)
     const matrix = {
-        paternal: { audio: "Manos_de_Gracia.mp3", video: "320766_medium.mp4" },
-        legado: { audio: "Tu_Mirada_Me_Sigue.mp3", video: "64137-509542890_medium.mp4" },
-        autoridad: { audio: "Leon_y_Cordero.mp3", video: "41300-429396316_medium.mp4" },
-        guerra: { audio: "La_Voz_de_Jehova.mp3", video: "63736-507811774_medium.mp4" },
-        sanidad: { audio: "Consumado_es.mp3", video: "144967-785786009_medium.mp4" },
-        amistad: { audio: "Emmanuel.mp3", video: "149375-796105802_medium.mp4" },
-        mision: { audio: "La_ofrenda_real.mp3", video: "199379-910162329_medium.mp4" },
-        sabiduria: { audio: "Quietud.mp3", video: "203872-922675721_medium.mp4" }
+        paternal: { audio: "Manos_de_Gracia.mp3", video: "320766_medium.mp4", start: "55" },
+        legado: { audio: "Tu_Mirada_Me_Sigue.mp3", video: "64137-509542890_medium.mp4", start: "65" },
+        autoridad: { audio: "Leon_y_Cordero.mp3", video: "41300-429396316_medium.mp4", start: "48" },
+        guerra: { audio: "La_Voz_de_Jehova.mp3", video: "63736-507811774_medium.mp4", start: "52" },
+        sanidad: { audio: "Consumado_es.mp3", video: "144967-785786009_medium.mp4", start: "70" },
+        amistad: { audio: "Emmanuel.mp3", video: "149375-796105802_medium.mp4", start: "45" },
+        mision: { audio: "La_ofrenda_real.mp3", video: "199379-910162329_medium.mp4", start: "58" },
+        sabiduria: { audio: "Quietud.mp3", video: "203872-922675721_medium.mp4", start: "30" }
     };
 
     // Helper to handle selection
@@ -100,13 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             context: context,
                             audio: matrix[selectedProfile].audio,
                             video: matrix[selectedProfile].video,
+                            start: matrix[selectedProfile].start, // 🚀 Clímax activado
                             message: baseMessage.replace(/\*/g, '') // Limpiar markdown para video
                         }
                     })
                 });
 
                 if (response.ok) {
-                    alert(`¡Misión Aceptada! 🌬️💎\n\nEl servidor está forjando tu video.\nEstará listo en unos minutos.`);
+                    alert(`¡Misión Aceptada! 🌬️💎\n\nEl servidor está forjando tu video comenzando en el CLÍMAX de la canción.`);
                 } else {
                     throw new Error('Error de conexión con el servidor de forja.');
                 }
