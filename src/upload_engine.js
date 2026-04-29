@@ -1,0 +1,63 @@
+const { google } = require('googleapis');
+const fs = require('fs');
+const path = require('path');
+
+async function uploadVideo() {
+    const videoPath = process.argv[2] || 'output_final.mp4';
+    const title = process.env.VIDEO_TITLE || 'MusiChris Breath - Aliento Ministerial';
+    const description = process.env.VIDEO_DESCRIPTION || '🌬️ Un mensaje de fe y esperanza de parte de MusiChris Studio.';
+
+    console.log('🚀 Iniciando Motor de Subida de MusiChris Studio...');
+
+    if (!process.env.YOUTUBE_CREDENTIALS || !process.env.YOUTUBE_TOKEN) {
+        console.error('❌ Error: Faltan secretos YOUTUBE_CREDENTIALS o YOUTUBE_TOKEN.');
+        process.exit(1);
+    }
+
+    try {
+        const credentials = JSON.parse(process.env.YOUTUBE_CREDENTIALS);
+        const token = JSON.parse(process.env.YOUTUBE_TOKEN);
+
+        const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
+        const auth = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
+        auth.setCredentials(token);
+
+        const youtube = google.youtube({ version: 'v3', auth });
+
+        console.log(`📤 Subiendo: ${videoPath}`);
+        const fileSize = fs.statSync(videoPath).size;
+
+        const res = await youtube.videos.insert({
+            part: 'snippet,status',
+            requestBody: {
+                snippet: {
+                    title: `${title} #shorts #musichris #aliento #fe`,
+                    description: description,
+                    categoryId: '10' // Music
+                },
+                status: {
+                    privacyStatus: 'public', // Directo a público para el ministerio
+                    selfDeclaredMadeForKids: false
+                }
+            },
+            media: {
+                body: fs.createReadStream(videoPath)
+            }
+        }, {
+            onUploadProgress: evt => {
+                const progress = (evt.bytesRead / fileSize) * 100;
+                process.stdout.write(`\r📊 Progreso de subida: ${Math.round(progress)}%`);
+            }
+        });
+
+        console.log('\n✅ ¡GLORIA A DIOS! Video subido con éxito.');
+        console.log(`🔗 ID del Video: ${res.data.id}`);
+        console.log(`🔗 URL: https://youtu.be/${res.data.id}`);
+
+    } catch (error) {
+        console.error('❌ Error crítico en la subida:', error.message);
+        process.exit(1);
+    }
+}
+
+uploadVideo();

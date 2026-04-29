@@ -33,11 +33,20 @@ jobs:
                                   [bg][logo]overlay=(W-w)/2:(H-h)/2[v]" \
                  -map "[v]" -map 1:a -shortest -c:v libx264 -preset fast -pix_fmt yuv420p output_final.mp4
           
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 📦 Install Dependencies
+        run: npm install googleapis
+
       - name: ☁️ Upload to YouTube
         env:
           YOUTUBE_CREDENTIALS: ${{ secrets.YOUTUBE_CREDENTIALS }}
           YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
+          VIDEO_TITLE: "Mensaje de Aliento - MusiChris Breath"
+          VIDEO_DESCRIPTION: "🌬️ ${{ github.event.client_payload.message }}\n\nForjado por MusiChris Breath Engine."
         run: |
           echo "📤 Subiendo a Musichris Studio..."
-          # Aquí llamamos al motor de subida que ya tienes configurado
-          # node src/upload_engine.js output_final.mp4
+          node src/upload_engine.js output_final.mp4
