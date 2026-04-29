@@ -72,8 +72,25 @@ jobs:
             res.on('data', (chunk) => data += chunk);
             res.on('end', () => {
               if (res.statusCode !== 200) {
-                console.error('API Error:', data);
-                process.exit(1);
+                console.error('❌ API Error:', data);
+                // Intento de listar modelos disponibles para depuración
+                console.log('--- Intentando listar modelos disponibles para depuración ---');
+                https.get({
+                  hostname: 'api.cerebras.ai',
+                  path: '/v1/models',
+                  headers: { 'Authorization': 'Bearer ' + process.env.CEREBRAS_API_KEY }
+                }, (resMod) => {
+                  let modData = '';
+                  resMod.on('data', (c) => modData += c);
+                  resMod.on('end', () => {
+                    try {
+                      const mods = JSON.parse(modData);
+                      console.log('Modelos disponibles:', mods.data.map(m => m.id).join(', '));
+                    } catch(e) { console.log('No se pudo listar modelos:', modData); }
+                    process.exit(1);
+                  });
+                });
+                return;
               }
               try {
                 const response = JSON.parse(data);
