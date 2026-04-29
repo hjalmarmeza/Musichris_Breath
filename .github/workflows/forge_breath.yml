@@ -50,6 +50,15 @@ jobs:
 
           const models = ['qwen-3-235b-a22b-instruct-2507', 'llama3.1-8b', 'zai-glm-4.7', 'gpt-oss-120b'];
           
+          function cleanJSON(text) {
+            try {
+              const match = text.match(/\{[\s\S]*\}/);
+              return match ? match[0] : text;
+            } catch (e) { return text; }
+          }
+
+          const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
           async function generateProphecy(modelIndex = 0) {
             if (modelIndex >= models.length) {
               console.error('❌ Todos los modelos fallaron.');
@@ -62,7 +71,7 @@ jobs:
             const payload = {
               model: currentModel,
               messages: [
-                {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales con sustancia y profundidad. REGLAS: Responde EXCLUSIVAMENTE con un JSON válido. "screen_1": Apertura potente (máximo 15 palabras). "screen_2": Palabra de poder profunda (máximo 15 palabras). "description": Reflexión SEO breve. "seo_title": Título épico. "seo_tags": 10 tags.'},
+                {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales. Responde EXCLUSIVAMENTE con un JSON válido: {"screen_1": "texto", "screen_2": "texto", "description": "texto", "seo_title": "texto", "seo_tags": "tag1, tag2"}. Máximo 15 palabras por pantalla.'},
                 {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}, Semilla: ${timestamp}`}
               ]
             };
@@ -80,15 +89,17 @@ jobs:
             const req = https.request(options, (res) => {
               let data = '';
               res.on('data', (chunk) => data += chunk);
-              res.on('end', () => {
+              res.on('end', async () => {
                 if (res.statusCode !== 200) {
                   console.warn(`⚠️ Fallo con ${currentModel}: ${res.statusCode}`);
+                  await delay(3000);
                   generateProphecy(modelIndex + 1);
                   return;
                 }
                 try {
                   const response = JSON.parse(data);
-                  const content = JSON.parse(response.choices[0].message.content);
+                  const rawContent = response.choices[0].message.content;
+                  const content = JSON.parse(cleanJSON(rawContent));
                   
                   const s1 = wrapText(content.screen_1.replace(/['":]/g, "").toUpperCase());
                   const s2 = wrapText(content.screen_2.replace(/['":]/g, "").toUpperCase());
@@ -100,16 +111,18 @@ jobs:
                   fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TAGS=${content.seo_tags}\n`);
                   fs.appendFileSync(process.env.GITHUB_ENV, `DESC_TEXT<<VAR_EOF\n${content.description}\nVAR_EOF\n`);
                   
-                  console.log(`✅ ÉXITO con modelo ${currentModel}. Narrativa generada.`);
+                  console.log(`✅ ÉXITO con ${currentModel}.`);
                 } catch (e) {
-                  console.warn(`⚠️ Error de parseo con ${currentModel}. Reintentando con el siguiente...`);
+                  console.warn(`⚠️ Error de parseo con ${currentModel}. Reintentando...`);
+                  await delay(2000);
                   generateProphecy(modelIndex + 1);
                 }
               });
             });
 
-            req.on('error', (e) => {
-              console.warn(`⚠️ Error de red con ${currentModel}. Reintentando...`);
+            req.on('error', async (e) => {
+              console.warn(`⚠️ Error de red con ${currentModel}.`);
+              await delay(2000);
               generateProphecy(modelIndex + 1);
             });
 
