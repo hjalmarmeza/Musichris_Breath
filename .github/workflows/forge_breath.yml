@@ -118,14 +118,6 @@ jobs:
           }
 
           generateProphecy();
-
-          req.on('error', (e) => {
-            console.error('Request Error:', e);
-            process.exit(1);
-          });
-
-          req.write(JSON.stringify(payload));
-          req.end();
           EOF
 
       - name: 🔨 Forging Ministerial Video
