@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const songName = matrix[selectedProfile].audio.replace(/_/g, ' ').replace('.mp3', '');
-        const baseMessage = `✨ *UN MENSAJE DE ALIENTO PARA TI* ✨\n\n¡Dios te bendiga! Quería compartir contigo esta palabra de fe y esperanza. 🙏\n\n🎶 *Escucha esta canción seleccionada especialmente para ti:* \n"${songName}"\n\n🌬️ *MusiChris Breath - El Soplo de Vida*\n\nQue este aliento fortalezca tu corazón hoy. ❤️`;
+        const baseMessage = `🌬️ MusiChris Breath - Un mensaje de aliento para ti.\n\nEscuchando: ${songName}`;
         
         if (selectedChannel === 'youtube') {
             try {
