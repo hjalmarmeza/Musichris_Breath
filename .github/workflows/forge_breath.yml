@@ -24,12 +24,14 @@ jobs:
           echo "🎼 Usando Audio: assets/audio/${{ github.event.client_payload.audio }}"
           echo "📺 Usando Video: assets/video/${{ github.event.client_payload.video }}"
           
-          # Renderizado Real con FFmpeg (Con Seek al Clímax)
+          # Renderizado Real con FFmpeg (Con Escalado Inteligente a 1080x1920)
           ffmpeg -i assets/video/${{ github.event.client_payload.video }} \
                  -ss ${{ github.event.client_payload.start }} -i assets/audio/${{ github.event.client_payload.audio }} \
                  -i assets/video/outro_animado.mp4 \
-                 -filter_complex "[0:v][2:v]concat=n=2:v=1:a=0[v]" \
-                 -map "[v]" -map 1:a -shortest output_final.mp4
+                 -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[v0]; \
+                                  [2:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[v1]; \
+                                  [v0][v1]concat=n=2:v=1:a=0[v]" \
+                 -map "[v]" -map 1:a -shortest -c:v libx264 -preset fast -pix_fmt yuv420p output_final.mp4
           
       - name: ☁️ Upload to YouTube
         env:
