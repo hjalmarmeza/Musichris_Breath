@@ -16,11 +16,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: 🧠 AI Prophetic Generation (Dual Layer)
+      - name: 🧠 AI Prophetic Generation (Triple Phase)
         env:
           CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
         run: |
-          echo "🤖 Generando Arquitectura Textual con IA..."
+          echo "🤖 Generando Narrativa de 3 Fases con IA..."
           RESPONSE=$(curl -s https://api.cerebras.ai/v1/chat/completions \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $CEREBRAS_API_KEY" \
@@ -28,23 +28,25 @@ jobs:
               "model": "llama3.1-70b",
               "response_format": { "type": "json_object" },
               "messages": [
-                {"role": "system", "content": "Eres el Motor de Sabiduría de MusiChris Breath. Devuelve un JSON con: 1. \"screen\": Una palabra profética potente (max 12 palabras). 2. \"description\": Una frase de oración o invitación BREVE Y DIFERENTE al texto de pantalla (max 15 palabras). NUNCA repitas palabras entre ambos."},
+                {"role": "system", "content": "Eres el Motor de Sabiduría de MusiChris Breath. Devuelve un JSON con: 1. \"screen_1\": Palabra de apertura (max 10 palabras). 2. \"screen_2\": Palabra de poder diferente (max 10 palabras). 3. \"description\": Invitación breve para YouTube (max 15 palabras). NUNCA repitas palabras."},
                 {"role": "user", "content": "Perfil: ${{ github.event.client_payload.profile }}, Tono: ${{ github.event.client_payload.tone }}, Contexto: ${{ github.event.client_payload.context }}"}
               ]
             }')
-          echo "SCREEN_TEXT=$(echo $RESPONSE | jq -r '.choices[0].message.content | fromjson | .screen')" >> $GITHUB_ENV
+          echo "S1=$(echo $RESPONSE | jq -r '.choices[0].message.content | fromjson | .screen_1')" >> $GITHUB_ENV
+          echo "S2=$(echo $RESPONSE | jq -r '.choices[0].message.content | fromjson | .screen_2')" >> $GITHUB_ENV
           echo "DESC_TEXT=$(echo $RESPONSE | jq -r '.choices[0].message.content | fromjson | .description')" >> $GITHUB_ENV
 
       - name: 🔨 Forging Ministerial Video
         run: |
-          # Renderizado Ministerial con Arquitectura de Marca
+          # Renderizado Ministerial con Secuencia de 3 Fases
           ffmpeg -stream_loop -1 -i assets/video/${{ github.event.client_payload.video }} \
                  -ss ${{ github.event.client_payload.start }} -t 25 -i assets/audio/${{ github.event.client_payload.audio }} \
                  -i assets/video/outro_animado.mp4 \
                  -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,setsar=1[bg]; \
-                                  [bg]drawtext=text='${{ env.SCREEN_TEXT }}':fontcolor=white:fontsize=80:x=(w-text_w)/2:y=(h-text_h)/2-150:shadowcolor=black:shadowx=4:shadowy=4:enable='between(t,0,15)':line_spacing=25[txt]; \
+                                  [bg]drawtext=text='${{ env.S1 }}':fontcolor=white:fontsize=85:x=(w-text_w)/2:y=(h-text_h)/2-150:shadowcolor=black:shadowx=4:shadowy=4:enable='between(t,0,7.5)':line_spacing=25[txt1]; \
+                                  [txt1]drawtext=text='${{ env.S2 }}':fontcolor=white:fontsize=85:x=(w-text_w)/2:y=(h-text_h)/2-150:shadowcolor=black:shadowx=4:shadowy=4:enable='between(t,7.5,15)':line_spacing=25[txt2]; \
                                   [2:v]scale=800:-1,colorkey=0x000000:0.1:0.1,format=yuva420p[logo]; \
-                                  [txt][logo]overlay=(W-w)/2:(H-h)/2-200:enable='gt(t,15)'[v_logo]; \
+                                  [txt2][logo]overlay=(W-w)/2:(H-h)/2-200:enable='gt(t,15)'[v_logo]; \
                                   [v_logo]drawtext=text='@MusiChris_Studio':fontcolor=white:fontsize=55:x=(w-text_w)/2:y=(h-text_h)/2+230:shadowcolor=black:shadowx=2:shadowy=2:enable='gt(t,15)'[v_handle]; \
                                   [v_handle]drawbox=y=h-250:color=white@0.15:width=850:height=100:t=fill:x=(w-850)/2:enable='gt(t,15)'[v_widget]; \
                                   [v_widget]drawtext=text='Caminemos juntos en fe':fontcolor=white:fontsize=42:x=(w-text_w)/2:y=h-220:shadowcolor=black@0.5:shadowx=1:shadowy=1:enable='gt(t,15)'[v]" \
