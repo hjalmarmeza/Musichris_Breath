@@ -71,7 +71,7 @@ jobs:
             const payload = {
               model: currentModel,
               messages: [
-                {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales PROFUNDAS. Responde EXCLUSIVAMENTE con un JSON válido. REGLAS: "screen_1": Revelación potente (mínimo 20, máximo 30 palabras). "screen_2": Palabra de poder profunda (mínimo 20, máximo 30 palabras). "description": Reflexión SEO. "seo_title": Título épico. "seo_tags": 10 tags. Queremos sustancia ministerial REAL.'},
+                {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales PROFUNDAS de exactamente 15 palabras. REGLAS: Responde EXCLUSIVAMENTE con un JSON válido. "screen_1" y "screen_2": Cada una debe ser una frase de poder de 15 palabras + la cita bíblica que la sustenta (ej: — Filipenses 4:13). "description": Reflexión SEO. "seo_title": Título épico. "seo_tags": 10 tags.'},
                 {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}, Semilla: ${timestamp}`}
               ]
             };
