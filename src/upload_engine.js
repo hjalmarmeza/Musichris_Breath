@@ -27,12 +27,15 @@ async function uploadVideo() {
         console.log(`📤 Subiendo: ${videoPath}`);
         const fileSize = fs.statSync(videoPath).size;
 
+        const tags = process.env.VIDEO_TAGS ? process.env.VIDEO_TAGS.split(',').map(t => t.trim()) : ['MusiChris', 'Aliento', 'Fe'];
+
         const res = await youtube.videos.insert({
             part: 'snippet,status',
             requestBody: {
                 snippet: {
-                    title: `${title} #shorts #musichris #aliento #fe`,
+                    title: title.length > 100 ? title.substring(0, 97) + '...' : title,
                     description: description,
+                    tags: tags,
                     categoryId: '10' // Music
                 },
                 status: {

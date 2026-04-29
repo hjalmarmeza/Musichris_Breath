@@ -51,7 +51,7 @@ jobs:
             model: 'llama3.1-70b',
             response_format: { type: 'json_object' },
             messages: [
-              {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Breath. Devuelve un JSON con: 1. "screen_1": Palabra de apertura (max 8 palabras). 2. "screen_2": Palabra de poder diferente (max 8 palabras). 3. "description": Invitación breve para YouTube (max 15 palabras). NUNCA repitas palabras ni uses comillas.'},
+              {role: 'system', content: 'Eres el Motor de Sabiduría y SEO de MusiChris Breath. Devuelve un JSON con: 1. "screen_1": Apertura (max 8 palabras). 2. "screen_2": Poder (max 8 palabras). 3. "description": Reflexión ministerial profunda (max 40 palabras). 4. "seo_title": Título épico y llamativo con emojis (max 60 caracteres). 5. "seo_tags": 10 tags separados por comas. NUNCA repitas palabras.'},
               {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}`}
             ]
           };
@@ -85,11 +85,12 @@ jobs:
                 fs.writeFileSync('s1.txt', s1);
                 fs.writeFileSync('s2.txt', s2);
                 
-                console.log('--- TEXTO S1 ---\n' + s1);
-                console.log('--- TEXTO S2 ---\n' + s2);
-                
+                // Export metadata to GITHUB_ENV
+                fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TITLE=${content.seo_title} #shorts\n`);
+                fs.appendFileSync(process.env.GITHUB_ENV, `VIDEO_TAGS=${content.seo_tags}\n`);
                 fs.appendFileSync(process.env.GITHUB_ENV, `DESC_TEXT<<VAR_EOF\n${content.description}\nVAR_EOF\n`);
-                console.log('✅ Narrativa generada y formateada.');
+                
+                console.log('✅ Narrativa y SEO generados correctamente.');
               } catch (e) {
                 console.error('Parse Error:', e);
                 process.exit(1);
@@ -135,8 +136,9 @@ jobs:
         env:
           YOUTUBE_CREDENTIALS: ${{ secrets.YOUTUBE_CREDENTIALS }}
           YOUTUBE_TOKEN: ${{ secrets.YOUTUBE_TOKEN }}
-          VIDEO_TITLE: "Mensaje de Aliento | MusiChris Studio"
-          VIDEO_DESCRIPTION: "${{ env.DESC_TEXT }}\n\n🎬 MusiChris Studio"
+          VIDEO_TITLE: "${{ env.VIDEO_TITLE }}"
+          VIDEO_TAGS: "${{ env.VIDEO_TAGS }}"
+          VIDEO_DESCRIPTION: "🌬️ BREATH | Aliento Ministerial de MusiChris Studio\n\n🕊️ MENSAJE:\n${{ env.DESC_TEXT }}\n\n🎬 Sobre MusiChris Studio:\nCanal dedicado a la música y palabra que edifica tu alma. ¡Caminemos juntos en fe!\n\n💎 #MusiChris #Aliento #Fe #Reflexion #Shorts"
         run: |
           echo "📤 Subiendo a Musichris Studio..."
           node src/upload_engine.js output_final.mp4
