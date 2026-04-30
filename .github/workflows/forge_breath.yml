@@ -160,14 +160,15 @@ jobs:
           ffmpeg -t 25 -stream_loop -1 -i assets/video/${{ github.event.client_payload.video }} \
                  -ss ${{ github.event.client_payload.start }} -t 25 -i assets/audio/${{ github.event.client_payload.audio }} \
                  -i assets/images/logo_breath.png -stream_loop -1 -i assets/video/outro_animado.mp4 -filter_complex \
-                 "[3:v]scale=500:-1[anim_logo]; \
+                 "[3:v]crop=1080:1080:420:0,scale=600:600,format=yuva420p,geq=lum='p(X,Y)':a='if(gt(hypot(X-W/2,Y-H/2),W/2),0,255)'[anim_logo]; \
                   [0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920[bg]; \
                   [bg]drawbox=x=50:y=(ih-900)/2:w=iw-100:h=900:color=black@0.7:t=fill:enable='between(t,0,15)'[bgbox]; \
                   [bgbox]drawtext=textfile=s1.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2:shadowcolor=black@0.9:shadowx=6:shadowy=6:enable='between(t,0,7.5)':line_spacing=35:fix_bounds=1[txt1]; \
                   [txt1]drawtext=textfile=s2.txt:fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=60:x=(w-text_w)/2:y=(h-text_h)/2:shadowcolor=black@0.9:shadowx=6:shadowy=6:enable='between(t,7.5,15)':line_spacing=35:fix_bounds=1[txt2]; \
-                  [txt2][anim_logo]overlay=x=(W-w)/2:y=(H-h)/2-200:enable='between(t,20,25)'[bglogo]; \
-                  [bglogo]drawtext=text='@Musichris_Studio':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=50:x=(w-text_w)/2:y=(h/2)+120:enable='between(t,20,25)':shadowcolor=black@0.8:shadowx=4:shadowy=4[outro1]; \
-                  [outro1]drawtext=text='Caminemos juntos en fe':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=35:x=(w-text_w)/2:y=(h/2)+200:enable='between(t,20,25)':shadowcolor=black@0.8:shadowx=3:shadowy=3[v]" \
+                  [txt2]drawbox=x=(iw-850)/2:y=(ih/2)+150:w=850:h=220:color=black@0.6:t=fill:enable='between(t,20,25)'[outrobox]; \
+                  [outrobox][anim_logo]overlay=x=(W-w)/2:y=(H-h)/2-350:enable='between(t,20,25)'[bglogo]; \
+                  [bglogo]drawtext=text='@Musichris_Studio':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=55:x=(w-text_w)/2:y=(h/2)+190:enable='between(t,20,25)':shadowcolor=black@0.8:shadowx=4:shadowy=4[outro1]; \
+                  [outro1]drawtext=text='Caminemos juntos en fe':fontfile='${{ env.FONT_PATH }}':fontcolor=white:fontsize=38:x=(w-text_w)/2:y=(h/2)+260:enable='between(t,20,25)':shadowcolor=black@0.8:shadowx=3:shadowy=3[v]" \
                  -map "[v]" -map 1:a -c:v libx264 -preset fast -pix_fmt yuv420p -t 25 -y output_final.mp4
           
       - name: 🟢 Setup Node.js
