@@ -48,12 +48,14 @@ jobs:
             return lines.join('\n');
           };
 
-          const models = ['qwen-3-235b-a22b-instruct-2507', 'llama3.1-8b', 'zai-glm-4.7', 'gpt-oss-120b'];
+          const models = ['llama3.1-70b', 'llama3.1-8b'];
           
           function cleanJSON(text) {
             try {
-              const match = text.match(/\{[\s\S]*\}/);
-              return match ? match[0] : text;
+              // Eliminar posibles bloques de código markdown
+              let cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+              const match = cleaned.match(/\{[\s\S]*\}/);
+              return match ? match[0] : cleaned;
             } catch (e) { return text; }
           }
 
@@ -71,9 +73,10 @@ jobs:
             const payload = {
               model: currentModel,
               messages: [
-                {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales PROFUNDAS de exactamente 15 palabras. REGLAS: Responde EXCLUSIVAMENTE con un JSON válido. "screen_1" y "screen_2": Cada una debe ser una frase de poder de 15 palabras + la cita bíblica que la sustenta (ej: — Filipenses 4:13). "description": Reflexión SEO. "seo_title": Título épico. "seo_tags": 10 tags.'},
+                {role: 'system', content: 'Eres el Motor de Sabiduría de MusiChris Studio. Genera revelaciones ministeriales PROFUNDAS. REGLAS: Responde EXCLUSIVAMENTE con un JSON válido. "screen_1" y "screen_2": Cada una debe ser una frase de poder de exactamente 15 palabras + la cita bíblica (ej: — Filipenses 4:13). "description": Reflexión SEO. "seo_title": Título épico. "seo_tags": 10 tags.'},
                 {role: 'user', content: `Perfil: ${profile}, Tono: ${tone}, Contexto: ${context}, Semilla: ${timestamp}`}
-              ]
+              ],
+              response_format: { type: "json_object" }
             };
 
             const options = {
@@ -91,7 +94,7 @@ jobs:
               res.on('data', (chunk) => data += chunk);
               res.on('end', async () => {
                 if (res.statusCode !== 200) {
-                  console.warn(`⚠️ Fallo con ${currentModel}: ${res.statusCode}`);
+                  console.warn(`⚠️ Fallo con ${currentModel}: ${res.statusCode} - ${data}`);
                   await delay(3000);
                   generateProphecy(modelIndex + 1);
                   return;
@@ -134,7 +137,8 @@ jobs:
                   
                   console.log(`✅ ÉXITO con ${currentModel}.`);
                 } catch (e) {
-                  console.warn(`⚠️ Error de parseo con ${currentModel}. Reintentando...`);
+                  console.warn(`⚠️ Error de parseo con ${currentModel}: ${e.message}`);
+                  console.log(`Contenido crudo: ${data}`);
                   await delay(2000);
                   generateProphecy(modelIndex + 1);
                 }
