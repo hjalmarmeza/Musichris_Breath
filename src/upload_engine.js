@@ -19,6 +19,11 @@ async function uploadVideo() {
         const token = JSON.parse(process.env.YOUTUBE_TOKEN);
 
         const { client_secret, client_id, redirect_uris } = credentials.installed || credentials.web;
+        
+        // Asegurar que el token tenga lo necesario para el refresco automático
+        if (!token.client_id) token.client_id = client_id;
+        if (!token.client_secret) token.client_secret = client_secret;
+
         const auth = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
         auth.setCredentials(token);
 
