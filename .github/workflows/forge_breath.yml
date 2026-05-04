@@ -20,7 +20,7 @@ jobs:
 
       - name: 🧠 AI Prophetic Generation (Triple Phase)
         env:
-          CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+          DEEPINFRA_TOKEN: ${{ secrets.DEEPINFRA_TOKEN }}
         run: |
           node << 'EOF'
           const https = require('https');
@@ -29,30 +29,16 @@ jobs:
           const profile = `${{ github.event.client_payload.profile }}`;
           const tone = `${{ github.event.client_payload.tone }}`;
           const context = `${{ github.event.client_payload.context }}`;
-          const timestamp = new Date().toISOString(); // Semilla temporal para frescura total
+          const timestamp = new Date().toISOString();
 
-          // Función para insertar saltos de línea y que el texto no se salga de la pantalla (aprox 15-20 caracteres por línea)
-          const wrapText = (text, maxChars = 32) => {
-            const words = text.split(' ');
-            let lines = [];
-            let currentLine = '';
-            words.forEach(word => {
-              if ((currentLine + word).length > maxChars) {
-                lines.push(currentLine.trim());
-                currentLine = word + ' ';
-              } else {
-                currentLine += word + ' ';
-              }
-            });
-            lines.push(currentLine.trim());
-            return lines.join('\n');
-          };
-
-          const models = ['llama3.1-70b', 'llama3.1-8b'];
+          const models = [
+            'meta-llama/Meta-Llama-3.1-70B-Instruct',
+            'meta-llama/Meta-Llama-3.1-8B-Instruct',
+            'microsoft/Phi-3-medium-4k-instruct'
+          ];
           
           function cleanJSON(text) {
             try {
-              // Eliminar posibles bloques de código markdown
               let cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
               const match = cleaned.match(/\{[\s\S]*\}/);
               return match ? match[0] : cleaned;
@@ -68,7 +54,7 @@ jobs:
             }
 
             const currentModel = models[modelIndex];
-            console.log(`🧠 Intentando con modelo: ${currentModel}...`);
+            console.log(`🧠 Intentando con DeepInfra: ${currentModel}...`);
 
             const payload = {
               model: currentModel,
@@ -80,12 +66,12 @@ jobs:
             };
 
             const options = {
-              hostname: 'api.cerebras.ai',
+              hostname: 'api.deepinfra.com',
               path: '/v1/chat/completions',
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + process.env.CEREBRAS_API_KEY
+                'Authorization': 'Bearer ' + process.env.DEEPINFRA_TOKEN
               }
             };
 
@@ -95,7 +81,7 @@ jobs:
               res.on('end', async () => {
                 if (res.statusCode !== 200) {
                   console.warn(`⚠️ Fallo con ${currentModel}: ${res.statusCode} - ${data}`);
-                  await delay(3000);
+                  await delay(2000);
                   generateProphecy(modelIndex + 1);
                   return;
                 }
@@ -104,7 +90,6 @@ jobs:
                   const rawContent = response.choices[0].message.content;
                   const cleanData = JSON.parse(cleanJSON(rawContent));
                   
-                  // Función de envoltorio de texto (Flow Wrap Engine)
                   const wrapText = (text, max) => {
                     if (!text) return '';
                     const parts = text.split(' — ');
@@ -138,8 +123,7 @@ jobs:
                   console.log(`✅ ÉXITO con ${currentModel}.`);
                 } catch (e) {
                   console.warn(`⚠️ Error de parseo con ${currentModel}: ${e.message}`);
-                  console.log(`Contenido crudo: ${data}`);
-                  await delay(2000);
+                  await delay(1000);
                   generateProphecy(modelIndex + 1);
                 }
               });
@@ -147,7 +131,7 @@ jobs:
 
             req.on('error', async (e) => {
               console.warn(`⚠️ Error de red con ${currentModel}.`);
-              await delay(2000);
+              await delay(1000);
               generateProphecy(modelIndex + 1);
             });
 
